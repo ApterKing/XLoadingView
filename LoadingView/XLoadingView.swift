@@ -106,27 +106,7 @@ public class XLoadingView: UIView {
     }
     var state: XLoadingViewState = .loading {
         didSet {
-            if state == .loading {
-                timer.isPaused = false
-                contentView.isHidden = true
-                loadingView.isHidden = false
-            } else {
-                timer.isPaused = true
-                contentView.isHidden = false
-                loadingView.isHidden = true
-            }
-            
-            if let image = delegate?.loadingViewPromptImage?(self) {
-                promptImageView.image = image
-            } else if let path = Bundle.main.path(forResource: String(format: "icon_prompt@%.0fx", UIScreen.main.scale), ofType: ".png") {
-                promptImageView.image = UIImage(contentsOfFile: path)
-            }
-            
-            if let text = delegate?.loadingViewPromptText?(self) {
-                promptLabel.attributedText = text
-            } else {
-                promptLabel.text = state.rawValue
-            }
+            _resetState()
         }
     }
 
@@ -150,7 +130,7 @@ public class XLoadingView: UIView {
         loadingShadowImageView.frame = CGRect(origin: CGPoint(x: (loadingView.width - loadingShadowImageView.width) / 2.0, y: loadingView.height - loadingShadowImageView.height), size: loadingShadowImageView.frame.size)
         loadingImageView.frame = CGRect(origin: CGPoint(x: (loadingView.width - loadingImageView.width) / 2.0, y: loadingShadowImageView.y - loadingImageView.height), size: loadingImageView.frame.size)
         
-        state = .loading
+        _resetState()
     }
     
     deinit {
@@ -159,6 +139,30 @@ public class XLoadingView: UIView {
 }
 
 extension XLoadingView {
+    
+    @objc private func _resetState() {
+        if state == .loading {
+            timer.isPaused = false
+            contentView.isHidden = true
+            loadingView.isHidden = false
+        } else {
+            timer.isPaused = true
+            contentView.isHidden = false
+            loadingView.isHidden = true
+        }
+        
+        if let image = delegate?.loadingViewPromptImage?(self) {
+            promptImageView.image = image
+        } else if let path = Bundle.main.path(forResource: String(format: "icon_prompt@%.0fx", UIScreen.main.scale), ofType: ".png") {
+            promptImageView.image = UIImage(contentsOfFile: path)
+        }
+        
+        if let text = delegate?.loadingViewPromptText?(self) {
+            promptLabel.attributedText = text
+        } else {
+            promptLabel.text = state.rawValue
+        }
+    }
     
     @objc private func _tapAction() {
         delegate?.loadingViewDidTapped?(self)
